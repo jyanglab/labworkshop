@@ -1,0 +1,1 @@
+ascp -i ~/.aspera/connect/etc/asperaweb_id_dsa.openssh -QT -l 100m anonftp@ftp.ncbi.nlm.nih.gov:/sra/sra-instant/reads/ByRun/sra/SRR/SRR611/SRR611839/SRR611839.sra /oasis/scratch/comet/$USER/temp_project/largeIO
