@@ -1,0 +1,66 @@
+###################################################################
+# This code is used for the second day of the intro to R course	  #
+# for the purpose of demonstrating summary statistics          	  #
+# This was created 08/2017 by Emily McCallen emccall@purdue.edu	  #
+###################################################################
+#Download necessary packages and call
+library(moments)
+#Read in data and assign it a name 
+PhD<-read.csv("https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/pscl/bioChemists.csv")  
+#What does it mean?!
+#art count of articles produced during last 3 years of Ph.D.
+#fem factor indicating gender of student, with levels Men and Women
+#mar factor indicating marital status of student, with levels Single and Married
+#kid5 number of children aged 5 or younger
+#phd prestige of Ph.D. department
+#ment count of articles produced by Ph.D. mentor during last 3 years
+
+#Lets look at some summary statistics
+#Central tendency 
+attach(PhD) #If we didn't use attach we would need to use PhD$art
+ma<-mean(art)  
+mea<-median(art)
+#There is no built in mode. We will use two lines of code to find it
+artt<-table(art) #first we'll create a table from our vector
+mode_a<-names(artt)[artt==max(artt)] # then we will request the label with the maximum value 
+#Variation 
+ra<-range(art)
+va<-var(art)
+sda<-sd(art)
+sea<-sda/sqrt(length(art))
+#A little more complicated now
+q95<-quantile(art, prob=0.95)
+qseq<-quantile(art, probs=seq(0,1,0.25))
+summary(art)
+#Let's look at it! 
+hist(art)
+breaks1<-seq(0,20,1)
+hist(art, breaks=breaks1, col="red")
+boxplot(art)
+boxplot(art, range=0)
+#Is it normal? 
+skewness(art)
+kurtosis(art)
+shapiro.test(art)
+#Let's break it down a little 
+females<-subset(PhD, fem == "Women", select = art)
+males<-subset(PhD, fem == "Men", select = art)
+fm<-mean(females$art)
+mm<-mean(males$art)
+single<-subset(PhD, mar == "Single", select = art)
+married<-subset(PhD, mar == "Married", select = art)
+sm<-mean(single$art)
+mam<-mean(married$art)
+boxplot(art~fem+mar, cex.axis=0.55)
+#What about kids?
+plot(kid5,art)
+#Let's standardize it
+km<-mean(kid5)
+ksd<-sd(kid5)
+kstand<-(kid5-km)/ksd
+mean(kstand)
+sd(kstand)
+kstand2<-scale(kid5)
+mean(kstand2)
+sd(kstand2)
+detach(PhD)
