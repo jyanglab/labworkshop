@@ -1,19 +1,5 @@
 ---
 title: "R 101"
-<<<<<<< HEAD
-author: "Eric Rodene"
-date: "05-17-2019"
-output:
-  html_document:
-    df_print: paged
-  pdf_document: default
-  word_document: default
----
-
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-=======
 author: "Jinliang Yang"
 date: "05-17-2019"
 output:
