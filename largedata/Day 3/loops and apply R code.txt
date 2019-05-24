@@ -1,0 +1,77 @@
+############################################################################
+# This code is used for the third day of the intro to R course             #
+# for the purpose of demonstrating for loops and apply functions           #
+# This was created on 08/10/2017 by Gabriela Nunez-Mir gnunezmi@purdue.edu #
+############################################################################
+
+###Print "The year is ______"
+print(paste("The year is", 2010))
+print(paste("The year is", 2011))
+print(paste("The year is", 2012))
+print(paste("The year is", 2013))
+print(paste("The year is", 2014))
+print(paste("The year is", 2015))
+
+
+###For loop to print "The year is ______" from 2010 to 2015
+
+years = c(2010:2015) ##create sequence with years 2010 to 2015
+for (x in years) { ##start for loop over elements (x) in years
+	print(paste("The year is", x)) ##task statement
+	}
+
+
+###For loop to print square root of numbers 1 to 10
+
+values = c(1:10) ##create sequence with numbers 1 to 10
+for (x in values){ ##start for loop over elements (x) in values
+	print(sqrt(x)) ##task statement
+	}
+
+###For loop to create a new variable called "count" containing all elements in values squared
+values = c(2,5,3,9,8,11,6)##create sequence
+count = NULL
+for (x in 1:7) {
+	count[x]=values[x]^2
+	}
+count
+
+
+###Trying out apply function
+
+##Create matrix
+a = matrix(c(1:24), nrow = 5 , ncol = 3)
+
+##Calculate means for rows
+apply(a, 1, mean)
+
+##Calculate means for columns
+apply(a, 2, mean)
+
+##Divide all numbers by 2
+apply(a, 1:2, function(x) x/2)
+
+
+###Trying out lapply function
+
+##Create list
+l = list(a= 1:10, b = 11:20)
+
+##Calculate means of elements a and b of list l
+lapply(l, mean)
+
+##Calculate sum of elements a and b of list l
+lapply(l, sum)
+
+
+###Trying out tapply function
+
+##Download dataset
+iris<-read.csv("https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/iris.csv")
+attach(iris)
+
+##Obtain mean petal length for each species
+tapply(Petal.Length, Species, mean)
+
+##Obtain maximum petal length for each species
+tapply(Petal.Length, Species, max)
