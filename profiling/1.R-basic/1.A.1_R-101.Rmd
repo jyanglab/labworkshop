@@ -3,8 +3,8 @@ title: "R 101"
 author: "Jinliang Yang"
 date: "05-17-2019"
 output:
-  word_document: default
   pdf_document: default
+  word_document: default
   html_notebook: default
 ---
 
@@ -30,10 +30,10 @@ title("Regression of MPG on Weight")
 # assign the variable id to row names
 # note the / instead of \ on mswindows systems 
 
-mydata <- read.table("C:/Users/Eric/Desktop/labworkshop/data/yu_etal_2015_SRR.csv", header=TRUE, sep=",")
-head(mydata)
-tail(mydata)
-dim(mydata)
+#mydata <- read.table("C:/Users/Eric/Desktop/labworkshop/data/yu_etal_2015_SRR.csv", header=TRUE, sep=",")
+#head(mydata)
+#tail(mydata)
+#dim(mydata)
 ```
 
 
@@ -46,7 +46,7 @@ The preview shows you a rendered HTML copy of the contents of the editor. Conseq
 
 How to import data
 
-```{r}
+```{r, eval=FALSE}
 #read csv
 Sra<- read.table("C:/Users/Eric/Desktop/labworkshop/data/SraRunTable_walley_etal_2016.txt", header=TRUE, 
    sep="\t")
@@ -54,8 +54,6 @@ Sra<- read.table("C:/Users/Eric/Desktop/labworkshop/data/SraRunTable_walley_etal
 head(Sra)#take a look at the first and last 6 rows
 tail(Sra)
 dim(Sra)
-
-
 
 
 ```
