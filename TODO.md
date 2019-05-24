@@ -17,3 +17,6 @@ TODO
 ## Delivery
 1. Counts on different version of maize genomes (v3 and v4).
 2. Shiny app or d3 data visulization tools for easy access and data query.
+
+
+Eric Rodene

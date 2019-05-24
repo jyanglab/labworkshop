@@ -62,7 +62,7 @@ How to import data
 
 ```{r}
 #read csv
-Sra<- read.table("data/SraRunTable_walley_etal_2016.txt", header=TRUE, 
+Sra<- read.table("C:/Users/Eric/Desktop/labworkshop/data/SraRunTable_walley_etal_2016.txt", header=TRUE, 
    sep="\t")
 
 head(Sra)#take a look at the first and last 6 rows
