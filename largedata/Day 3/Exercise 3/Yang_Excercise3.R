@@ -18,8 +18,7 @@ cor.test(lnA,lnM)
 
 bird<-read.csv("bird.csv", header=T)             #1c. merge and calculate the correlation between M and B
 MB<-merge(bird, speciesarea, by=c("Name"))
-z<-MB[,2]             ## Bird
-cor.test(z,y)
+cor.test(MB$Birds,MB$Mammals)
 
 
 
