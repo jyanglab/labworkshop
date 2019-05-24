@@ -1,5 +1,6 @@
 ---
 title: "R 101"
+<<<<<<< HEAD
 author: "Eric Rodene"
 date: "05-17-2019"
 output:
@@ -12,6 +13,25 @@ output:
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+=======
+author: "Jinliang Yang"
+date: "05-17-2019"
+output:
+  word_document: default
+  pdf_document: default
+  html_notebook: default
+---
+
+My first R code
+
+```{r setup}
+# , include=TRUE, warning=FALSE, echo=TRUE, error=FALSE
+knitr::opts_knit$set(root.dir=normalizePath('../../'))
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, error=FALSE, echo=TRUE)
+```
+
+
+My first R code
 
 ```{r}
 # Creating a Graph
@@ -19,9 +39,7 @@ attach(mtcars)
 plot(wt, mpg) 
 abline(lm(mpg~wt))
 title("Regression of MPG on Weight")
-```
 
-```{r}
 # first row contains variable names, comma is separator 
 # assign the variable id to row names
 # note the / instead of \ on mswindows systems 
@@ -38,3 +56,20 @@ Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by press
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
 The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+How to import data
+
+```{r}
+#read csv
+Sra<- read.table("data/SraRunTable_walley_etal_2016.txt", header=TRUE, 
+   sep="\t")
+
+head(Sra)#take a look at the first and last 6 rows
+tail(Sra)
+dim(Sra)
+
+
+
+
+```

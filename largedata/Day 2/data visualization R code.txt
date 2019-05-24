@@ -1,0 +1,105 @@
+###################################################################
+# This code is used for the second day of the intro to R course	  #
+# for the purpose of demonstrating data visualization          	  #
+# This was created 08/2017 by Insu Jo jo23@purdue.edu           	#
+###################################################################
+x1<-runif(20, 5, 15)	# generate 20 random numbers between 5 and 15 with an uniform distribution
+x2<-runif(20, 5, 20)	# generate 20 random numbers between 10 and 20 with an uniform distribution
+y1<-rnorm(20, 100, 10) 	# generate 20 random numbers with a normal distribution of mean 100 and standard deviation 10. 
+y2<-rnorm(20, 120, 10) 	# generate 20 random numbers with a normal distribution of mean 120 and standard deviation 10. 
+s<-c(rep("A", 10), rep("B", 10))	# generate a categorical variable
+sample_dat<-as.data.frame(cbind(x1, x2, y1, y2,s))					# combine all variables into a data frame
+sample_dat$x1<-as.numeric(as.character(sample_dat$x1))				# change variable x1 as numeric
+sample_dat$x2<-as.numeric(as.character(sample_dat$x2))				# change variable x2 as numeric
+sample_dat$y1<-as.numeric(as.character(sample_dat$y1))				# change variable y1 as numeric 
+sample_dat$y2<-as.numeric(as.character(sample_dat$y2))				# change variable y2 as numeric  
+colnames(sample_dat)<-c("X1", "X2", "Y1", "Y2", "S")  					# change variable names (column names)
+##### setting a panel for multiple figures
+par(mfrow=c(3,2))  # number of rows=3, number of column=2
+dev.off()
+##### create a scatter plot
+plot(x1, y1)
+plot(y1~x1)
+
+plot(Y1~X1, data=sample_dat)
+plot(sample_dat$Y1~sample_dat$X1)
+plot(sample_dat[,3]~sample_dat[,1])
+
+##### plotting with log scale
+plot(Y1~X1, data=sample_dat)
+plot(Y1~X1, data=sample_dat, log='xy')
+plot(Y1~X1, data=sample_dat, log='y')
+plot(Y1~X1, data=sample_dat, log='x')
+
+##### labeling x and y axes
+plot(Y1~X1, data=sample_dat, xlab="Axis X1", ylab="Axis Y1")
+
+##### adding figure title
+plot(Y1~X1, data=sample_dat, xlab="Axis X1", ylab="Axis Y1", main="Exercise")
+
+##### setting x and y axis range
+plot(Y1~X1, data=sample_dat, xlab="Axis X1", ylab="Axis Y1", xlim=c(0,20), ylim=c(0, 140))
+
+##### change point type and color
+plot(Y1~X1, data=sample_dat, xlab="Axis X1", ylab="Axis Y1", pch=15)
+plot(Y1~X1, data=sample_dat, xlab="Axis X1", ylab="Axis Y1", pch=15, col="orange")
+
+##### multiple relationships in a single plot
+plot(Y1~X1, data=sample_dat, xlab="Axis X1", ylab="Axis Y1")
+par(new=T)
+plot(Y2~X2, data=sample_dat, xlab="Axis X2", ylab="Axis Y2")
+
+range(sample_dat$X1)
+range(sample_dat$X2)
+range(sample_dat$Y1)
+range(sample_dat$Y2)
+
+# option 1
+plot(Y1~X1, data=sample_dat, xlab="Axis X", ylab="Axis Y", xlim=c(5,20), ylim=c(80, 150), pch=15, col="red", main="Exercise")
+par(new=T)
+plot(Y2~X2, data=sample_dat, xlab="", ylab="", xlim=c(5,20), ylim=c(80, 150), axes=F, pch=19, col="blue")
+
+# option 2
+plot(Y1~X1, data=sample_dat, xlab="Axis X", ylab="Axis Y", xlim=c(5,20), ylim=c(80, 150), pch=15, col="red", main="Exercise")
+points(Y2~X2, data=sample_dat, pch=19, col="blue")
+
+##### adding regression line
+lm(Y1~X1, data=sample_dat)
+lm(Y2~X2, data=sample_dat)
+
+abline(lm(Y1~X1, data=sample_dat), col="red", lty=2)
+abline(lm(Y2~X2, data=sample_dat), col="blue", lty=3)
+
+##### adding legend
+legend("bottomright", pch=c(15, 19), col=c("red", "blue"), legend=c("data1", "data2"))
+
+##### create a box-plot
+boxplot(X1~S, data=sample_dat, col=c("tomato2", "dodgerblue4"), ylab="X1", xlab="S", pch=19)
+
+##### create a barplot
+mean<-tapply(sample_dat$Y1, sample_dat$S, mean)
+sd<-tapply(sample_dat$Y1, sample_dat$S, sd)
+nbr<-tapply(sample_dat$Y1, sample_dat$S, length)
+se<-sd/sqrt(nbr)
+
+par(mfrow=c(1,1))
+barplot(mean, col=c("tomato2", "dodgerblue4"), border=c("tomato2", "dodgerblue4"), ylab="Y1", ylim=c(0, 120))
+
+##### create a barplot
+mean<-tapply(sample_dat$Y1, sample_dat$S, mean)
+sd<-tapply(sample_dat$Y1, sample_dat$S, sd)
+nbr<-tapply(sample_dat$Y1, sample_dat$S, length)
+se<-sd/sqrt(nbr)
+
+##### adding error bars
+par(mfrow=c(1,1))
+barplot(mean, col=c("tomato2", "dodgerblue4"), border=c("tomato2", "dodgerblue4"), ylab="Y1", ylim=c(0, 120))
+
+xx<-barplot(mean, col=c("tomato2", "dodgerblue4"), border=c("tomato2", "dodgerblue4"), ylab="Y1", ylim=c(0, 120))
+arrows(xx, mean, xx, mean+sd, angle=90, col=c("tomato2", "dodgerblue4"), lwd=2)
+
+#### saving graphics
+pdf("file location", width=7, height=4)	# Start new device
+par(mfrow=c(1,2))			# panel figures
+plot()          				# plot
+dev.off()	  			# Terminate the device

@@ -1,0 +1,35 @@
+############################################################################
+# This code is used for the third day of the intro to R course             #
+# for the purpose of demonstrating for simple data analysis                #
+# This was created on 08/2017 by Anping Chen chen2569@purdue.edu #
+############################################################################
+##### Pearson correlation between two variables
+data <- read.csv("https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/airquality.csv")
+x <- data [,5]  ## temperature
+y <- data [,2]  ## ozone level
+plot(x,y, xlab="temperature", ylab="ozone")
+### calculate correlation directly with the function cor()
+cor(x,y)
+### to get the full result including the significance level p with function cor.test()
+cor.test(x,y)
+##### linear regression model of ozone level with temperature
+lm(y~x) ## linear model regression
+summary(lm(y~x)) ## summarize all results of the linear model regression
+plot(x,y, xlab="temperature", ylab="ozone" ) ## plot the data
+abline(lm(y~x)) ?##include the regression line in the plot
+summary(lm(y~x)) ## summarize all results of the linear model regression
+##### compare the impact of different treatments on plant growth
+rm(list=ls(all=TRUE))
+data<-read.csv("https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/PlantGrowth.csv")
+y<-data[,2]
+trt<-data[,3]
+boxplot(y~trt,names=c("control","trt1","trt2"), ylab="weight")
+summary(aov(y~trt))
+#### use body weight and brain size to cluster animals
+rm(list=ls(all=TRUE))
+data<-read.csv("https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/robustbase/Animals2.csv")
+data<-data[1:62,2:3]
+d<-dist(data,method="euclidean")
+hc<-hclust(d,method="complete")
+plot(hc)
+
