@@ -1,0 +1,122 @@
+---
+title: "Homework 1"
+author: "Yavuz"
+date: "May 30, 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+#Question 1.a.
+```{r}
+	(14+2)*(3/4)^2
+```
+#Question 1.b.
+```{r}
+  factorial(4)/(factorial(5)+factorial(3))
+```
+#Question 1.c.
+```{r}
+	X <- -12
+  y <- 4
+  x=-12
+(abs(x)+3*y)*((x+2)/sqrt(y))
+  
+```
+#Question 2.a.
+```{r}
+c(1:20)
+```
+#Question 2.b.
+```{r}
+c(seq(from=0,to=10,by=0.5))
+```
+#Question 2.c.
+```{r}
+c("Hakuna","Matata","what","a","wonderful","phrase")
+```
+#Question 3.a.
+```{r}
+x<-c(seq(from=1, to=19, by=2))
+x
+
+```
+#Question 3.b.
+```{r}
+y<-c("Alex","Bob","Conway","David","Emma","Frank","Gabby","Helen","Iric","Kevin")
+y
+```
+#Question 3.c.
+```{r}
+my.data<-as.data.frame(x)
+colnames(my.data)<- c("ID")
+my.data$Name<-c(y)
+
+```
+#Question 4.a.
+```{r}
+my.trees<-read.csv("treesR_csv", header = T)
+my.trees<-read.csv("treesR_csv", header = T)
+my.trees<-read.csv("treesR_csv", header = T)
+head(treesR_csv, 10)
+```
+
+```{r}
+tail(treesR_csv,10)
+```
+#Question 4.b.
+```{r}
+tree1.data<-as.data.frame(head(treesR_csv, 10))
+tree2.data<-as.data.frame(tail(treesR_csv, 10))
+my.trees2.data<-rbind(tree1.data,tree2.data)
+my.trees3<-my.trees2.data[, c("PLOT","QUAD","MAPLE","ASH","OAK","TYPE")]
+```
+#Question 4.c.
+```{r}
+write.csv(my.trees3,"treesR_newyavuz.csv", row.names = F)
+```
+#Question 5.a.
+```{r}
+my.newtree<-read.csv("treesR_newyavuz.csv")
+```
+#Question 5.b.
+```{r}
+z<-c(sample(1:20,10,replace=F))
+```
+#Question 5.c.
+```{r}
+my.newtree1<-my.newtree[z,]
+```
+#Question 5.d.
+```{r}
+my.rowOAK<-my.newtree1[,"OAK"]
+my.rowOAK1<-0.000435*my.rowOAK
+my.newtree1$OAK_ft<-c(my.rowOAK1)
+write.csv(my.newtree1,"my.newtree_OAK_ft.csv")
+```
+
