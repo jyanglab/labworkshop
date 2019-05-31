@@ -13,6 +13,44 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE, error=FALSE, echo=TRUE)
 ```
 
 
+# Play with `Crane`
+
+On Mac `~/.ssh/config`:
+```
+Host crane
+  HostName crane.unl.edu
+  User yourusername
+```
+
+Or:
+`ssh jyang21@crane.unl.edu`
+
+## Request compute node
+
+```
+# request nodes
+srun --qos=short --nodes=1 --licenses=common --ntasks=4 --mem 32G --time 6:00:00 --pty bash
+srun -p jyanglab --nodes=1 --licenses=common --ntasks=4 --mem 6G --time 6:00:00 --pty bash
+srun -p batch --nodes=1 --licenses=common --ntasks=4 --mem 6G --time 6:00:00 --pty bash
+
+# check the status
+squeue --format="%.18i %.9A %.9P %.8j %.8u %.2t %.10M %C %m %g" | grep jyang21
+squeue --format="%.18i %.9A %.9P %.8j %.8u %.2t %.10M %C %m %g" | grep jyanglab
+```
+
+## Open up an R console within Crane
+
+```
+module load R/3.5
+module avail
+R
+```
+
+Note R package can only be installed in head node
+
+
+---------------------
+
 read in data fastly.
 
 ```{r, eval=FALSE}
