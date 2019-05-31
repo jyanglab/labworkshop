@@ -1,0 +1,40 @@
+---
+title: "R data.table"
+author: "Jinliang Yang"
+date: "05-31-2019"
+output: NULL
+---
+
+
+```{r setup}
+# , include=TRUE, warning=FALSE, echo=TRUE, error=FALSE
+knitr::opts_knit$set(root.dir=normalizePath('../../'))
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, error=FALSE, echo=TRUE)
+```
+
+
+read in data fastly.
+
+```{r, eval=FALSE}
+library("data.table")
+df <- fread("/common/jyanglab/shared/Gen_Xu/282_mineral_GWAS/output/Cd111.assoc.txt", data.table=FALSE)
+head(df)
+
+df$qval <- -log10(df$p_wald)
+df <- df[order(df$qval, decreasing=T), ]
+```
+
+
+## Read in gene annotation file
+
+learn about what is [GFF3 format](https://uswest.ensembl.org/info/website/upload/gff3.html)
+
+```{r, eval=FALSE}
+# Zea_mays.AGPv4.33_exon.gff3
+
+gff <- fread("/common/jyanglab/shared/dbcenter/AGP/AGPv4/Zea_mays.AGPv4.33_exon.gff3", data.table=FALSE, autostart=101)
+names(gff)[1:5] <- c("chr", "seq", "feature", "start", "end")
+
+sub <- subset(gff, chr == 2 & start > 163019790 - 1000 & start < 163019790 + 1000)
+```
+
