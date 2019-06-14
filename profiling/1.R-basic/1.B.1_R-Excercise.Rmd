@@ -8,6 +8,7 @@ output: html_notebook
 
 #This code is for the Day1 Exercise in Introduction of R programming
 #This code was written by Zhikai Yang on 8/14/2017
+
 # Excercise 1
 ```{r}
 # Question 1
