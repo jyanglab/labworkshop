@@ -167,9 +167,9 @@ op <- subset(cw3, type == "OP")
 ## pattern match
 op$row <- as.character(op$Barcode)
 op$row <- gsub("_.*", "", op$row)
-op$row <- gsub(".*-|OP", "", op$row)
+#op$row <- gsub(".*-|OP", "", op$row)
 
-op$row <- as.numeric(op$row)
+#op$row <- as.numeric(op$row)
 
 op$row <- gsub(".*-|OP|op", "", op$row)
 op$row <- as.numeric(op$row)
