@@ -60,6 +60,7 @@ cw1 <- cw[!(cw$Barcode %in% cw$Barcode[idx]), ]
 
 ```{r}
 # reshape the data from wide format to long format for cob idth and cob length trait
+# install.packages("tidyr")
 library("tidyr")
 class(cw1[,3])
 
@@ -69,6 +70,8 @@ cw1[,3] <- as.numeric(as.character(cw1[,3]))
 cw2 <- gather(cw1, key="Trait", value="value", c("Cob.width.1", "Cob.width.2", "Cob.width.3", "Cob.width.4",
                                                     "Cob.width.5", "Cob.width.6", "Cob.Width.7", "Cob.width.8"))
 
+head(cw2)
+dim(cw2)
 ```
 
 ### summarize from the long format
@@ -87,9 +90,13 @@ tb <- as.data.frame(table(cw2$Barcode)) #1210
 tb <- merge(tb, cw1[, 1:2], by.x="Var1", by.y="Barcode", all=TRUE) #1210
 #subset(tb, is.na(Number.of.ears))
 subset(tb, is.na(Freq))
-subset(cw1, Barcode %in% "2018-2477OP_DE811OP")
 
 c1 <- subset(tb, Freq != Number.of.ears)
+
+
+subset(cw1, Barcode %in% "2018-2477OP_DE811OP")
+
+
 # 60 of the records are inconsistent with the obs.
 subset(cw1, Barcode %in% "2018-1039OP_Tzi18OP")
 
@@ -123,7 +130,7 @@ hist(cw2$value, breaks=100, col="#eec591", xlab="Cob Width", ylab="freq", main="
 
 ```{r}
 cw3 <- subset(cw2, value > 5)
-hist(cw3$value, breaks=50, col="#eec591", xlab="Cob Width", ylab="freq", main="histogram")
+hist(cw3$value, breaks=50, col="#9932cc", xlab="Cob Width", ylab="freq", main="histogram")
 
 ```
 
@@ -163,13 +170,12 @@ table(cw3$type)
 ```{r}
 op <- subset(cw3, type == "OP")
 
-  
 ## pattern match
 op$row <- as.character(op$Barcode)
 op$row <- gsub("_.*", "", op$row)
-op$row <- gsub(".*-|OP", "", op$row)
+#op$row <- gsub(".*-|OP", "", op$row)
 
-op$row <- as.numeric(op$row)
+#op$row <- as.numeric(op$row)
 
 op$row <- gsub(".*-|OP|op", "", op$row)
 op$row <- as.numeric(op$row)
