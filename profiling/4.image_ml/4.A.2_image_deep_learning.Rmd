@@ -1,0 +1,199 @@
+---
+title: "Havelock image preprocessing"
+output: html_notebook
+date: 07-12-2019
+---
+
+
+## Normalize path
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE) 
+knitr::opts_knit$set(root.dir=normalizePath('../../')) 
+#library(tidyverse)
+```
+
+
+We will create a dataset containing three subsets:
+1. a training set with 1000 smaples of each class
+2. a validation set with 500 samples of each class
+3. a test set with 500 samples of each class
+
+
+```{r}
+
+img_copy <- function(base_dir="largedata/dl2", obs=c("corn", "grass"), inputdir="data/test/"){
+    #base_dir <- "largedata/dl2"
+    dir.create(base_dir)
+    train_dir <- file.path(base_dir, "train")
+    dir.create(train_dir)
+    validation_dir <- file.path(base_dir, "validation")
+    dir.create(validation_dir)
+    test_dir <- file.path(base_dir, "test")
+    dir.create(test_dir)
+    
+    for(i in 1:length(obs)){
+        ### create folders 
+        train_dir_ob <- file.path(train_dir, obs[i])
+        dir.create(train_dir_ob)
+        
+        validation_dir_ob <- file.path(validation_dir, obs[i])
+        dir.create(validation_dir_ob)
+        
+        test_dir_ob <- file.path(test_dir, obs[i])
+        dir.create(test_dir_ob)
+        
+        ### put objects into their own folders
+        files <- list.files(file.path(inputdir, obs[i]), pattern = "png", full.names = TRUE)
+        message(sprintf("###>>> Input [ %s %s ] images .... ", length(files), obs[i]))
+        file.copy(file.path(files[1:1000]), file.path(train_dir_ob)) 
+        file.copy(file.path(files[1001:1500]), file.path(validation_dir_ob)) 
+        file.copy(file.path(files[1501:2000]), file.path(test_dir_ob)) 
+    }
+}
+
+
+img_copy(base_dir="largedata/dl2", obs=c("corn", "grass"), inputdir="data/test/")
+
+
+
+```
+
+
+
+Let's count how many pictures we have in each training split (trait/validation/test).
+
+
+```{r}
+cat("total training grass images:", length(list.files("largedata/dl2/train/grass/")), "\n")
+
+cat("total test dog images:", length(list.files("largedata/dl2/test/corn/")), "\n")
+```
+
+
+
+
+# Building our network
+
+
+### Setup the ML layers (cat or dog page 124)
+
+```{r}
+library(keras)
+
+model <- keras_model_sequential() %>%
+    layer_conv_2d(filters =32, kernel_size=c(3,3), activation="relu",
+                  input_shape = c(10, 10, 3)) %>% #height, width, and RGB
+    layer_max_pooling_2d(pool_size=c(2,2)) %>%
+    layer_conv_2d(filters =64, kernel_size=c(3,3), activation="relu") %>%
+    layer_max_pooling_2d(pool_size=c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 512, activation = 'relu') %>%
+    layer_dense(units = 1, activation = 'sigmoid')
+
+summary(model)
+```
+
+
+### Compile the Model
+
+```{r}
+model %>% compile(
+  loss = "binary_crossentropy",
+  optimizer = optimizer_rmsprop(lr = 1e-4),
+  metrics = c("acc")
+)
+```
+
+### Data Preprocessing
+
+```{r}
+train_dir <- "largedata/dl1/train/"
+validation_dir <- "largedata/dl1/validation/"
+
+# All images will be rescaled by 1/255
+train_datagen <- image_data_generator(rescale = 1/255)
+validation_datagen <- image_data_generator(rescale = 1/255)
+train_generator <- flow_images_from_directory(
+  # This is the target directory
+  train_dir,
+  # This is the data generator
+  train_datagen,
+  # All images will be resized to 150x150
+  target_size = c(10, 10),
+  batch_size = 20,
+  # Since we use binary_crossentropy loss, we need binary labels
+  class_mode = "binary"
+)
+
+validation_generator <- flow_images_from_directory(
+  validation_dir,
+  validation_datagen,
+  target_size = c(10, 10),
+  batch_size = 20,
+  class_mode = "binary"
+)
+```
+
+
+
+Let’s look at the output of one of these generators: it yields batches of 150 × 150 RGB images (shape (20, 150, 150, 3)) and binary labels (shape (20)). There are 20 samples in each batch (the batch size). Note that the generator yields these batches indefinitely: it loops endlessly over the images in the target folder.
+
+```{r}
+batch <- generator_next(train_generator)
+str(batch)
+```
+
+### Train the model
+
+```{r}
+history <- model %>% fit_generator(
+  train_generator,
+  steps_per_epoch = 100,
+  epochs =300,
+  validation_data = validation_generator,
+  validation_steps = 50
+)
+```
+
+It is good practice to always save your models after training:
+
+```{r}
+#model %>% save_model_hdf5("cache/grass_and_soil_small_1.h5")
+load()
+plot(history)
+```
+
+
+### Evaluate accuracy
+
+```{r}
+test_datagen <- image_data_generator(rescale = 1/255)
+test_generator <- flow_images_from_directory(
+  # This is the target directory
+  test_dir,
+  # This is the data generator
+  test_datagen,
+  # All images will be resized to 150x150
+  target_size = c(10, 10),
+  batch_size = 20,
+  # Since we use binary_crossentropy loss, we need binary labels
+  class_mode = "binary"
+)
+
+score <- model %>% evaluate(test_generator)
+
+cat('Test loss:', score$loss, "\n")
+cat('Test accuracy:', score$acc, "\n")
+```
+
+
+
+
+
+
+
+
+
+
+
+
