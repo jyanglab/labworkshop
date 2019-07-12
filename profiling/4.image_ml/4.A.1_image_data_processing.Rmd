@@ -1,0 +1,334 @@
+---
+title: "Havelock image preprocessing"
+output: html_notebook
+date: 07-12-2019
+---
+
+
+## Normalize path
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE) 
+knitr::opts_knit$set(root.dir=normalizePath('../../')) 
+#library(tidyverse)
+```
+
+- Read the pic files
+- Decode the JPEG content to RBG grids of pixels
+- Convert these into floating point tensors
+- Rescale to 0-1
+
+## chop data into 10x10 small images
+
+https://dahtah.github.io/imager/imager.html
+
+```{r}
+library(imager)
+## find a file in a path through a pattern 
+file <- list.files("data", pattern="JPG", full.names = TRUE)
+im <- load.image(file)
+dim(im) #5472 3648    1    3 => x,y,z (depth or time), c (color)
+
+plot(im)
+```
+
+
+
+# Using LabelBox to obtain a train data
+
+[LabelBox](https://app.labelbox.com/projects/cjwr734egfg2x0860y6rtja0t/review/cjwr7g0l6tojr0838bhhb2v85)
+
+corn, grass and soil
+
+
+```{r}
+an <- read.csv("data/export-2019-06-13T16_22_45.151Z.csv")
+
+# only keep records for "corn" by replace everything after grass as nothing.
+corn <- gsub("\"|grass.*", "", an$Label) 
+# split the string by using "geometry:"
+s1 <- unlist(strsplit(corn, split="geometry:"))[-1]
+
+# find the pattern, and use square brackets, curly brackets
+# two backslash to skip the pattern
+s2 <- unlist(strsplit(s1, split="\\},\\{"))
+s3 <- gsub("\\[|\\]|\\{|\\}|\\,", "", s2)
+
+# converting the coordinates info into a data.frame
+df1 <- as.data.frame(matrix(s3, ncol=4, byrow=TRUE))
+df1$x1 <- as.numeric(gsub("y:.*|x:", "", df1$V1))
+df1$x2 <- as.numeric(gsub("y:.*|x:", "", df1$V3))
+df1$y1 <- as.numeric(gsub(".*y:", "", df1$V1))
+df1$y2 <- as.numeric(gsub(".*y:", "", df1$V2))
+df1 <- df1[order(df1$x1, df1$y1),]
+
+head(df1)
+```
+
+
+## Grass and Soil
+
+Similarly, we will do it for grass and soil.
+
+```{r}
+grass <- gsub("\"|soil.*", "", an$Label) 
+grass <- gsub(".*grass", "grass", grass)
+s1 <- unlist(strsplit(grass, split="geometry:"))[-1]
+s2 <- unlist(strsplit(s1, split="\\},\\{"))
+s3 <- gsub("\\[|\\]|\\{|\\}|\\,", "", s2)
+
+df2 <- as.data.frame(matrix(s3, ncol=4, byrow=TRUE))
+df2$x1 <- as.numeric(gsub("y:.*|x:", "", df2$V1))
+df2$x2 <- as.numeric(gsub("y:.*|x:", "", df2$V3))
+df2$y1 <- as.numeric(gsub(".*y:", "", df2$V1))
+df2$y2 <- as.numeric(gsub(".*y:", "", df2$V2))
+df2 <- df2[order(df2$x1, df2$y1),]
+
+soil <- gsub("\"", "", an$Label) 
+soil <- gsub(".*soil", "soil", soil)
+s1 <- unlist(strsplit(soil, split="geometry:"))[-1]
+s2 <- unlist(strsplit(s1, split="\\},\\{"))
+s3 <- gsub("\\[|\\]|\\{|\\}|\\,", "", s2)
+
+df3 <- as.data.frame(matrix(s3, ncol=4, byrow=TRUE))
+df3$x1 <- as.numeric(gsub("y:.*|x:", "", df3$V1))
+df3$x2 <- as.numeric(gsub("y:.*|x:", "", df3$V3))
+df3$y1 <- as.numeric(gsub(".*y:", "", df3$V1))
+df3$y2 <- as.numeric(gsub(".*y:", "", df3$V2))
+df3 <- df3[order(df3$x1, df3$y1),]
+
+```
+
+
+## Divide the rectangles into 10x10 squares
+
+```{r, eval=FALSE}
+
+chopimg <- function(df=df1, path="data/test/corn/", im, printrow=1:10){
+    
+    ### change to nearest 10 values using ceiling and floor
+    df$x10 <- ceiling((df$x1-1)/10)*10+1
+    df$x20 <- floor((df$x2)/10)*10
+    df$y10 <- ceiling((df$y1-1)/10)*10+1
+    df$y20 <- floor((df$y2)/10)*10
+    
+    stat1 <- nrow(df) ## input annotations
+    df <- subset(df, x20 > x10 & y20 > y10)
+    stat2 <- nrow(df) ## useful annotations
+    message(sprintf("###>>> useful/input [%s / %s] annotations ...", stat2, stat1))
+    
+    dir.create(path, showWarnings = T, recursive = TRUE)
+    df$pics <- -9
+    #1:nrow(df)
+    for(i in printrow){
+        xs <- seq(from=df$x10[i], to=df$x20[i], by=10)
+        ys <- seq(from=df$y10[i], to=df$y20[i], by=10)
+        
+        gs <- data.frame(x=rep(xs, each=length(ys)), y=rep(ys, times=length(xs)))
+        message(sprintf("###>>> chopping [%s th] img into [%s] chunks ...", i, nrow(gs)))
+        for(j in 1:nrow(gs)){
+            outfile=paste0(path,"/test_x", gs$x[j], "_y", gs$y[j], ".png")
+            #imsub(im, x > 1 & x <10, y>1 & y<10) %>% plot
+            save.image(imsub(im, x > gs$x[j] & x < (gs$x[j]+10), y > gs$y[j] & y < (gs$y[j]+10)), file=outfile)
+        }
+        df$pics[i] <- nrow(gs)
+    }
+    return(df)
+}
+
+t1 <- chopimg(df=df1, path="data/test/corn/", im, printrow=1:10)
+t2 <- chopimg(df=df2, path="data/test/grass/", im, printrow=1:10)
+t3 <- chopimg(df=df3, path="data/test/soil/", im, printrow=1:10)
+
+```
+
+
+
+
+
+We will create a dataset containing three subsets:
+1. a training set with 1000 smaples of each class
+2. a validation set with 500 samples of each class
+3. a test set with 500 samples of each class
+
+
+```{r}
+
+img_copy <- function(base_dir="largedata/dl2", obs=c("corn", "grass"), inputdir="data/test/"){
+    #base_dir <- "largedata/dl2"
+    dir.create(base_dir)
+    train_dir <- file.path(base_dir, "train")
+    dir.create(train_dir)
+    validation_dir <- file.path(base_dir, "validation")
+    dir.create(validation_dir)
+    test_dir <- file.path(base_dir, "test")
+    dir.create(test_dir)
+    
+    for(i in 1:length(obs)){
+        ### create folders 
+        train_dir_ob <- file.path(train_dir, obs[i])
+        dir.create(train_dir_ob)
+        
+        validation_dir_ob <- file.path(validation_dir, obs[i])
+        dir.create(validation_dir_ob)
+        
+        test_dir_ob <- file.path(test_dir, obs[i])
+        dir.create(test_dir_ob)
+        
+        ### put objects into their own folders
+        files <- list.files(file.path(inputdir, obs[i]), pattern = "png", full.names = TRUE)
+        message(sprintf("###>>> Input [ %s %s ] images .... ", length(files), obs[i]))
+        file.copy(file.path(files[1:1000]), file.path(train_dir_ob)) 
+        file.copy(file.path(files[1001:1500]), file.path(validation_dir_ob)) 
+        file.copy(file.path(files[1501:2000]), file.path(test_dir_ob)) 
+    }
+}
+
+
+img_copy(base_dir="largedata/dl2", obs=c("corn", "grass"), inputdir="data/test/")
+
+
+
+```
+
+
+
+Let's count how many pictures we have in each training split (trait/validation/test).
+
+
+```{r}
+cat("total training grass images:", length(list.files("largedata/dl2/train/grass/")), "\n")
+
+cat("total test dog images:", length(list.files("largedata/dl2/test/corn/")), "\n")
+```
+
+
+
+
+# Building our network
+
+
+### Setup the ML layers (cat or dog page 124)
+
+```{r}
+library(keras)
+
+model <- keras_model_sequential() %>%
+    layer_conv_2d(filters =32, kernel_size=c(3,3), activation="relu",
+                  input_shape = c(10, 10, 3)) %>% #height, width, and RGB
+    layer_max_pooling_2d(pool_size=c(2,2)) %>%
+    layer_conv_2d(filters =64, kernel_size=c(3,3), activation="relu") %>%
+    layer_max_pooling_2d(pool_size=c(2,2)) %>%
+    layer_flatten() %>%
+    layer_dense(units = 512, activation = 'relu') %>%
+    layer_dense(units = 1, activation = 'sigmoid')
+
+summary(model)
+```
+
+
+### Compile the Model
+
+```{r}
+model %>% compile(
+  loss = "binary_crossentropy",
+  optimizer = optimizer_rmsprop(lr = 1e-4),
+  metrics = c("acc")
+)
+```
+
+### Data Preprocessing
+
+```{r}
+train_dir <- "largedata/dl1/train/"
+validation_dir <- "largedata/dl1/validation/"
+
+# All images will be rescaled by 1/255
+train_datagen <- image_data_generator(rescale = 1/255)
+validation_datagen <- image_data_generator(rescale = 1/255)
+train_generator <- flow_images_from_directory(
+  # This is the target directory
+  train_dir,
+  # This is the data generator
+  train_datagen,
+  # All images will be resized to 150x150
+  target_size = c(10, 10),
+  batch_size = 20,
+  # Since we use binary_crossentropy loss, we need binary labels
+  class_mode = "binary"
+)
+
+validation_generator <- flow_images_from_directory(
+  validation_dir,
+  validation_datagen,
+  target_size = c(10, 10),
+  batch_size = 20,
+  class_mode = "binary"
+)
+```
+
+
+
+Let’s look at the output of one of these generators: it yields batches of 150 × 150 RGB images (shape (20, 150, 150, 3)) and binary labels (shape (20)). There are 20 samples in each batch (the batch size). Note that the generator yields these batches indefinitely: it loops endlessly over the images in the target folder.
+
+```{r}
+batch <- generator_next(train_generator)
+str(batch)
+```
+
+### Train the model
+
+```{r}
+history <- model %>% fit_generator(
+  train_generator,
+  steps_per_epoch = 100,
+  epochs =300,
+  validation_data = validation_generator,
+  validation_steps = 50
+)
+```
+
+It is good practice to always save your models after training:
+
+```{r}
+#model %>% save_model_hdf5("cache/grass_and_soil_small_1.h5")
+load()
+plot(history)
+```
+
+
+### Evaluate accuracy
+
+```{r}
+test_datagen <- image_data_generator(rescale = 1/255)
+test_generator <- flow_images_from_directory(
+  # This is the target directory
+  test_dir,
+  # This is the data generator
+  test_datagen,
+  # All images will be resized to 150x150
+  target_size = c(10, 10),
+  batch_size = 20,
+  # Since we use binary_crossentropy loss, we need binary labels
+  class_mode = "binary"
+)
+
+score <- model %>% evaluate(test_generator)
+
+cat('Test loss:', score$loss, "\n")
+cat('Test accuracy:', score$acc, "\n")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
