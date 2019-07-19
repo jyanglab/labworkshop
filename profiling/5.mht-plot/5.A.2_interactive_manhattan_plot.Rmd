@@ -41,11 +41,30 @@ manhattan(pval, chr="chr", bp="ps", snp="rs", p="p_score", col = c("black", "gra
 #install.packages("qqman")
 library(qqman)
 library(data.table)
-pval <- read.table("/common/jyanglab/shared/Gen_Xu/282_GWAS_37_trait/output/X20KernelWeight.assoc.txt",stringsAsFactors=FALSE, header=TRUE)
+pval <- fread("/common/jyanglab/shared/Gen_Xu/282_GWAS_37_trait/output/X20KernelWeight.assoc.txt", data.table=FALSE)
+
+dim(pval)
+pval$log10p <- -log10(pval$p_score)
+pval <- subset(pval, log10p > 3)
 # Make the Manhattan plot on the gwasResults dataset
+
+pdf("graphs/mht-plot.pdf", width = 10, height=3)
 manhattan(pval, chr="chr", bp="ps", snp="rs", p="p_score", col = c("black", "gray60") )
+dev.off()
 ```
 
+-----------------------------
+
+### High light SNPs of interest
+
+```{r, eval=FALSE}
+# Load the library
+
+chr8 <- subset(pval, chr ==8 & log10p > 7)
+
+# Make the Manhattan plot on the gwasResults dataset
+manhattan(pval, chr="chr", bp="ps", snp="rs", p="p_score", col = c("black", "gray60"), highlight = chr8$rs )
+```
 
 
 
