@@ -1,0 +1,12 @@
+name: imht
+title: imht
+username:
+account: yangjl
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1039555
+bundleId: 2244789
+url: https://yangjl.shinyapps.io/imht/
+when: 1563467274.54801
+asMultiple: FALSE
+asStatic: FALSE
