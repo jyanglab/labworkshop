@@ -10,10 +10,7 @@ output:
   word_document: default
 ---
 
-I created a shiny app for your data. Please run the attached file.
- 
 
- 
 ```{r setup}
 # , include=TRUE, warning=FALSE, echo=TRUE, error=FALSE
 knitr::opts_knit$set(root.dir=normalizePath('../../'))
